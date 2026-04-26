@@ -230,6 +230,34 @@ mjx-container{overflow-x:auto;max-width:100%}
   .hdr{padding:14px 16px}
   .logo{font-size:1.5rem}
 }
+
+/* ── HOME TABS ── */
+.home-tabs{
+  display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;
+}
+.home-tab-btn{
+  padding:8px 22px;border-radius:999px;
+  font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:800;
+  cursor:pointer;transition:all .2s;
+  background:var(--card2);border:1.5px solid var(--border);color:var(--dim);
+}
+.home-tab-btn.active{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  border-color:var(--gold);color:#000;
+  box-shadow:0 2px 14px rgba(240,192,64,.35);
+}
+.home-tab-btn:hover:not(.active){border-color:var(--gold);color:var(--gold)}
+
+/* MIX card variant */
+.topic-card.mix-card:hover{border-color:var(--teal);box-shadow:0 8px 32px rgba(15,187,170,.18)}
+.topic-card.mix-card:hover::after{opacity:1;background:linear-gradient(135deg,rgba(15,187,170,.07),transparent)}
+.topic-card.mix-card .tc-count.has-q{background:rgba(15,187,170,.12);border-color:var(--teal);color:var(--teal)}
+.mix-badge{
+  position:absolute;bottom:9px;right:9px;
+  background:rgba(15,187,170,.15);border:1px solid var(--teal);
+  font-size:.62rem;font-weight:800;color:var(--teal);
+  padding:2px 7px;border-radius:999px;letter-spacing:.5px;
+}
 </style>
 </head>
 <body>
@@ -259,9 +287,18 @@ mjx-container{overflow-x:auto;max-width:100%}
 <section id="home">
   <h2 class="home-title">Choose a Topic</h2>
   <p class="home-sub">Select any topic to start practicing</p>
-  <div class="topics-grid" id="topicsGrid">
-    <!-- Cards rendered by JS from TOPICS data below -->
+
+  <!-- Tabs -->
+  <div class="home-tabs">
+    <button class="home-tab-btn active" id="tab-practice" onclick="switchHomeTab('practice')">📚 PRACTICE</button>
+    <button class="home-tab-btn" id="tab-mix" onclick="switchHomeTab('mix')">🔀 MIX</button>
   </div>
+
+  <!-- Practice grid -->
+  <div id="topicsGrid" class="topics-grid"></div>
+
+  <!-- Mix grid -->
+  <div id="mixGrid" class="topics-grid" style="display:none"></div>
 </section>
 
 <!-- ══════════════════════════════════════════════
@@ -5264,7 +5301,85 @@ function showHome() {
     card.onclick = () => topicClick(i);
     grid.appendChild(card);
   });
+
+  renderMixGrid();
 }
+
+/* ── Switch home tab ── */
+function switchHomeTab(tab) {
+  document.getElementById('tab-practice').classList.toggle('active', tab === 'practice');
+  document.getElementById('tab-mix').classList.toggle('active', tab === 'mix');
+  document.getElementById('topicsGrid').style.display = tab === 'practice' ? 'grid' : 'none';
+  document.getElementById('mixGrid').style.display = tab === 'mix' ? 'grid' : 'none';
+}
+
+/* ── Collect ALL questions from a topic (including subcards) and shuffle ── */
+function getAllQuestions(topic) {
+  let all = [];
+  if (topic.type === 'subcards') {
+    topic.children.forEach(c => { all = all.concat(parseQ(c.questions)); });
+  } else {
+    all = parseQ(topic.questions);
+  }
+  // Fisher-Yates shuffle
+  for (let i = all.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [all[i], all[j]] = [all[j], all[i]];
+  }
+  return all;
+}
+
+/* ── Render Mix grid ── */
+function renderMixGrid() {
+  const grid = document.getElementById('mixGrid');
+  grid.innerHTML = '';
+  TOPICS.slice(0, 10).forEach((t, i) => {
+    const qc = countQ(t);
+    const card = document.createElement('div');
+    card.className = 'topic-card mix-card';
+    card.innerHTML = `
+      <span class="tc-count ${qc>0?'has-q':''}">${qc}Q</span>
+      <div class="tc-icon">${t.icon}</div>
+      <div class="tc-name">${t.name}</div>
+      ${t.sub ? `<div class="tc-sub">${t.sub}</div>` : ''}
+      <span class="mix-badge">🔀 MIX</span>
+    `;
+    card.onclick = () => startMixQuiz(i);
+    grid.appendChild(card);
+  });
+}
+
+/* ── Start Mix Quiz ── */
+function startMixQuiz(i) {
+  const t = TOPICS[i];
+  const qs = getAllQuestions(t);
+  if (!qs.length) {
+    alert(`No questions in "${t.name}" yet.`);
+    return;
+  }
+  // Build a virtual topic object with shuffled questions
+  state.activeTopic = { ...t, _mixMode: true };
+  state.activeParent = null;
+  state.questions = qs;
+  state.current = 0;
+  state.answers = {};
+  state.saved = {};
+  state.submitted = false;
+  state.page = 'quiz';
+
+  document.getElementById('home').style.display = 'none';
+  document.getElementById('subcards').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  document.getElementById('scoreCard').style.display = 'none';
+  document.getElementById('qCard').style.display = 'block';
+  document.getElementById('navBtns').style.display = 'flex';
+  document.getElementById('backBtn').classList.add('show');
+
+  renderQ(0);
+  updateNav();
+  startTimer();
+}
+
 
 function topicClick(i) {
   const t = TOPICS[i];
@@ -5455,13 +5570,22 @@ function submitQuiz(timeOut = false) {
 
 /* ── Retry ── */
 function retryQuiz() {
+  if (state.activeTopic._mixMode) {
+    // Find original topic index and restart with fresh shuffle
+    const idx = TOPICS.findIndex(t => t.name === state.activeTopic.name);
+    if (idx !== -1) { startMixQuiz(idx); return; }
+  }
   startQuiz(state.activeTopic, state.activeParent);
 }
 
 /* ── Back ── */
 function goBack() {
   stopTimer();
-  if (state.page === 'quiz' || state.page === 'subcards') {
+  if (state.page === 'quiz' && state.activeTopic?._mixMode) {
+    showHome();
+    // Restore mix tab view
+    setTimeout(() => switchHomeTab('mix'), 0);
+  } else if (state.page === 'quiz' || state.page === 'subcards') {
     if (state.activeParent !== null && state.page === 'quiz' && TOPICS[state.activeParent]?.type === 'subcards') {
       showSubcards(state.activeParent);
     } else {
