@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MathZone</title>
+
+<!-- MathJax: renders ALL math symbols, LaTeX, fractions, roots perfectly -->
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+
+<style>
+/* ═══════════════════════════════════════════════
+   MATHZONE — SINGLE FILE WEBSITE
+   ═══════════════════════════════════════════════ */
+:root{
+  --bg:#06080f;
+  --bg2:#0d1120;
+  --bg3:#141928;
+  --card:#111827;
+  --card2:#1a2236;
+  --gold:#f0c040;
+  --gold2:#e8a020;
+  --teal:#0fbbaa;
+  --red:#ff4d6d;
+  --green:#22c986;
+  --blue:#4fa3ff;
+  --txt:#e8eaf0;
+  --dim:#7a8499;
+  --border:#232d45;
+  --r:14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:'Nunito',sans-serif;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+
+/* ── Starfield bg ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%,rgba(15,187,170,.07) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 90%,rgba(240,192,64,.06) 0%,transparent 60%);
+  pointer-events:none;z-index:0
+}
+
+/* ── HEADER ── */
+.hdr{
+  position:relative;z-index:10;
+  background:linear-gradient(180deg,#0a0f1e 0%,transparent 100%);
+  padding:22px 28px 18px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  border-bottom:1px solid var(--border)
+}
+.logo{font-family:'Rajdhani',sans-serif;font-size:1.9rem;font-weight:700;color:var(--gold);letter-spacing:2px;text-shadow:0 0 24px rgba(240,192,64,.4)}
+.logo span{color:var(--teal)}
+.hdr-right{display:flex;align-items:center;gap:14px}
+.back-btn{
+  display:none;align-items:center;gap:6px;
+  background:var(--card2);border:1px solid var(--border);
+  color:var(--txt);font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:700;
+  padding:7px 16px;border-radius:999px;cursor:pointer;transition:.2s
+}
+.back-btn:hover{border-color:var(--gold);color:var(--gold)}
+.back-btn.show{display:flex}
+
+/* ── TIMER ── */
+.timer-wrap{display:none;align-items:center;gap:8px}
+.timer-wrap.show{display:flex}
+.timer-ring{position:relative;width:52px;height:52px}
+.timer-ring svg{transform:rotate(-90deg)}
+.timer-ring circle{fill:none;stroke-width:4;stroke-linecap:round}
+.ring-bg{stroke:var(--border)}
+.ring-fg{stroke:var(--teal);stroke-dasharray:138;stroke-dashoffset:0;transition:stroke-dashoffset .9s linear,stroke .5s}
+.timer-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:var(--teal)}
+.timer-num.warn{color:var(--red)}
+.ring-fg.warn{stroke:var(--red)}
+
+/* ══════════════════════════════
+   HOME PAGE
+══════════════════════════════ */
+#home{position:relative;z-index:1;flex:1;padding:32px 24px 60px;max-width:1200px;margin:0 auto;width:100%}
+.home-title{
+  font-family:'Rajdhani',sans-serif;font-size:clamp(1.4rem,3vw,2rem);font-weight:700;
+  color:var(--txt);margin-bottom:6px;
+  padding-left:14px;border-left:4px solid var(--gold)
+}
+.home-sub{color:var(--dim);font-size:.9rem;margin-bottom:28px;padding-left:18px}
+
+.topics-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(165px,1fr));
+  gap:16px
+}
+
+.topic-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:22px 14px 18px;text-align:center;cursor:pointer;
+  transition:transform .22s,box-shadow .22s,border-color .22s,background .22s;
+  display:flex;flex-direction:column;align-items:center;gap:9px;
+  position:relative;overflow:hidden;user-select:none
+}
+.topic-card::after{
+  content:'';position:absolute;inset:0;border-radius:var(--r);
+  background:linear-gradient(135deg,rgba(240,192,64,.06),transparent);
+  opacity:0;transition:opacity .3s
+}
+.topic-card:hover{transform:translateY(-5px);border-color:var(--gold);box-shadow:0 8px 32px rgba(240,192,64,.15)}
+.topic-card:hover::after{opacity:1}
+.topic-card:active{transform:translateY(-2px)}
+
+.tc-icon{font-size:2rem;line-height:1}
+.tc-name{font-weight:800;font-size:.97rem;color:var(--txt);line-height:1.3}
+.tc-sub{font-size:.75rem;color:var(--dim)}
+.tc-count{
+  position:absolute;top:9px;right:9px;
+  background:var(--bg3);border:1px solid var(--border);
+  font-size:.68rem;font-weight:700;color:var(--dim);
+  padding:2px 7px;border-radius:999px
+}
+.tc-count.has-q{background:rgba(15,187,170,.12);border-color:var(--teal);color:var(--teal)}
+
+/* Sub-cards page */
+#subcards{display:none;position:relative;z-index:1;flex:1;padding:28px 24px 60px;max-width:1200px;margin:0 auto;width:100%}
+#subcards.visible{display:block}
+.subcards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.sub-card{
+  background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);
+  padding:20px 12px 16px;text-align:center;cursor:pointer;
+  transition:transform .2s,box-shadow .2s,border-color .2s;
+  display:flex;flex-direction:column;align-items:center;gap:7px
+}
+.sub-card:hover{transform:translateY(-4px);border-color:var(--teal);box-shadow:0 6px 24px rgba(15,187,170,.15)}
+.sub-card .tc-name{color:#7ec8ff}
+.sub-card .tc-count.has-q{background:rgba(79,163,255,.1);border-color:var(--blue);color:var(--blue)}
+
+/* ══════════════════════════════
+   QUIZ PAGE
+══════════════════════════════ */
+#quiz{display:none;position:relative;z-index:1;flex:1;padding:24px 20px 60px;max-width:780px;margin:0 auto;width:100%}
+
+/* progress */
+.prog-wrap{height:4px;background:var(--bg3);border-radius:999px;overflow:hidden;margin-bottom:24px}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--teal),var(--blue));border-radius:999px;transition:width .4s ease}
+
+/* question card */
+.q-card{
+  background:var(--card);border:1px solid var(--border);border-radius:18px;
+  padding:28px 26px 22px;box-shadow:0 4px 32px rgba(0,0,0,.4);margin-bottom:20px;
+  animation:fadeUp .3s ease
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.q-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.q-num{font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase}
+.q-saved{font-size:.78rem;color:var(--teal);display:none}
+.q-saved.show{display:inline}
+
+.q-text{font-size:clamp(1rem,2.3vw,1.15rem);line-height:1.75;color:var(--txt);margin-bottom:22px;overflow-x:auto}
+
+/* options */
+.opts{display:grid;gap:11px}
+.opt{
+  display:flex;align-items:flex-start;gap:12px;
+  background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;
+  padding:12px 15px;cursor:pointer;
+  color:var(--txt);font-family:'Nunito',sans-serif;font-size:1rem;line-height:1.6;
+  text-align:left;width:100%;transition:border-color .16s,background .16s,transform .14s;
+  overflow-x:auto
+}
+.opt:hover:not(:disabled){border-color:var(--gold);background:rgba(240,192,64,.06);transform:translateX(4px)}
+.opt-lbl{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;color:var(--gold);min-width:20px;flex-shrink:0;margin-top:1px}
+.opt:disabled{cursor:default;transform:none!important}
+
+.opt.correct{border-color:var(--green)!important;background:rgba(34,201,134,.13)!important;color:#6effc3}
+.opt.correct .opt-lbl{color:var(--green)}
+.opt.wrong{border-color:var(--red)!important;background:rgba(255,77,109,.13)!important;color:#ffaab8}
+.opt.wrong .opt-lbl{color:var(--red)}
+.opt.show-correct{border-color:var(--green)!important;background:rgba(34,201,134,.07)!important}
+
+/* feedback */
+.feedback{
+  margin-top:14px;padding:10px 16px;border-radius:8px;font-weight:700;font-size:.93rem;
+  animation:fadeUp .2s ease;display:none
+}
+.feedback.show{display:block}
+.feedback.ok{background:rgba(34,201,134,.12);border:1px solid var(--green);color:#6effc3}
+.feedback.bad{background:rgba(255,77,109,.12);border:1px solid var(--red);color:#ffaab8}
+
+/* nav buttons */
+.nav{display:flex;flex-wrap:wrap;gap:11px;justify-content:center;margin-top:4px}
+.btn{
+  padding:11px 22px;border:none;border-radius:10px;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-size:.93rem;font-weight:800;
+  display:inline-flex;align-items:center;gap:6px;
+  transition:transform .14s,box-shadow .14s,opacity .14s
+}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 4px 18px rgba(0,0,0,.4)}
+.btn:active:not(:disabled){transform:translateY(0)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn-prev{background:var(--card2);color:var(--txt);border:1px solid var(--border)}
+.btn-save{background:var(--teal);color:#000}
+.btn-next{background:var(--blue);color:#fff}
+.btn-submit{background:var(--gold);color:#000}
+
+/* ── SCORE CARD ── */
+.score-card{
+  background:var(--card);border:1px solid var(--border);border-radius:18px;
+  padding:50px 28px 40px;text-align:center;
+  box-shadow:0 4px 40px rgba(0,0,0,.5);animation:fadeUp .4s ease;display:none
+}
+.sc-emoji{font-size:3.8rem;margin-bottom:14px;display:block}
+.sc-title{font-family:'Rajdhani',sans-serif;font-size:2rem;font-weight:700;margin-bottom:8px}
+.sc-score{font-size:3rem;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--gold);margin-bottom:6px}
+.sc-sub{color:var(--dim);font-size:.95rem;margin-bottom:28px}
+.sc-time-out{color:var(--red);font-weight:700;font-size:.95rem;margin-bottom:18px;display:none}
+.btn-retry{background:var(--gold);color:#000;padding:12px 28px;border-radius:10px;font-size:1rem}
+.btn-retry:hover{transform:translateY(-2px)}
+
+/* ── MISC ── */
+.hidden{display:none!important}
+mjx-container{overflow-x:auto;max-width:100%}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  .topics-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+  .topic-card{padding:16px 10px}
+  .q-card{padding:20px 16px}
+  .btn{padding:10px 16px;font-size:.85rem}
+  .hdr{padding:14px 16px}
+  .logo{font-size:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════════ -->
+<header class="hdr">
+  <div class="logo">∑ Math<span>Zone</span></div>
+  <div class="hdr-right">
+    <div class="timer-wrap" id="timerWrap">
+      <div class="timer-ring">
+        <svg width="52" height="52" viewBox="0 0 52 52">
+          <circle class="ring-bg" cx="26" cy="26" r="22"/>
+          <circle class="ring-fg" id="ringFg" cx="26" cy="26" r="22"/>
+        </svg>
+        <div class="timer-num" id="timerNum">6:00</div>
+      </div>
+    </div>
+    <button class="back-btn" id="backBtn" onclick="goBack()">← Back</button>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════
+     HOME – 25 TOPIC CARDS
+══════════════════════════════════════════════ -->
+<section id="home">
+  <h2 class="home-title">Choose a Topic</h2>
+  <p class="home-sub">Select any topic to start practicing</p>
+  <div class="topics-grid" id="topicsGrid">
+    <!-- Cards rendered by JS from TOPICS data below -->
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SUB-CARDS (e.g., Tables 11-30)
+══════════════════════════════════════════════ -->
+<section id="subcards">
+  <h2 class="home-title" id="subTitle">Tables</h2>
+  <p class="home-sub" id="subDesc">Select a set to begin</p>
+  <div class="subcards-grid" id="subGrid"></div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     QUIZ
+══════════════════════════════════════════════ -->
+<section id="quiz">
+  <div class="prog-wrap"><div class="prog-bar" id="progBar"></div></div>
+
+  <!-- Score card (shown after submit / timer ends) -->
+  <div class="score-card" id="scoreCard">
+    <span class="sc-emoji" id="scEmoji">🎉</span>
+    <div class="sc-title" id="scTitle">Quiz Complete!</div>
+    <div class="sc-score" id="scScore">0/0</div>
+    <div class="sc-sub" id="scSub">Keep practising!</div>
+    <div class="sc-time-out" id="scTimeOut">⏰ Time ran out!</div>
+    <div class="nav" style="margin-top:0">
+      <button class="btn btn-retry" onclick="retryQuiz()">🔄 Try Again</button>
+      <button class="btn btn-prev" onclick="goBack()">← Back</button>
+    </div>
+  </div>
+
+  <!-- Question card -->
+  <div class="q-card" id="qCard">
+    <div class="q-meta">
+      <span class="q-num" id="qNum">Q.1</span>
+      <span class="q-saved" id="qSaved">✔ Saved</span>
+    </div>
+    <div class="q-text" id="qText"></div>
+    <div class="opts" id="optsGrid"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <!-- Nav buttons -->
+  <div class="nav" id="navBtns">
+    <button class="btn btn-prev" id="prevBtn" onclick="navigate(-1)">◀ Prev</button>
+    <button class="btn btn-save" onclick="saveAnswer()">💾 Save</button>
+    <button class="btn btn-next" id="nextBtn" onclick="navigate(1)">Next ▶</button>
+    <button class="btn btn-submit" id="submitBtn" onclick="submitQuiz(false)">✅ Submit</button>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     ██████████████████████████████████████████
+       PASTE YOUR QUESTIONS BELOW — EDIT HERE
+     ██████████████████████████████████████████
+
+  FORMAT FOR EVERY SET:
+  ─────────────────────
+  Q.1  Question text here (supports math: $x^2$, $\sqrt{n}$, $\frac{a}{b}$)
+  A. Option A
+  B. Option B
+  C. Option C
+  D. Option D
+  Correct Answer: A
+
+  Q.2  Next question...
+  A. ...
+  ...
+  Correct Answer: C
+
+  ─────────────────────
+  Max questions per set: unlimited. Timer = 6 minutes per set.
+══════════════════════════════════════════════ -->
+<script>
+
+/* ═══════════════════════════════════════════════════
+   ████  TOPICS DATA — EDIT THIS SECTION  ████
+   ═══════════════════════════════════════════════════
+
+   Each topic has:
+     name   : display name on card
+     icon   : emoji
+     sub    : subtitle (optional)
+     type   : "quiz"      → goes directly to quiz
+              "subcards"  → shows child cards first
+
+   For type:"quiz", add  questions: `...raw text...`
+   For type:"subcards", add  children: [ array of quiz topics ]
+
+   IMPORTANT: Use backticks ` ` for question strings
+   and escape any backticks inside with \`
+═══════════════════════════════════════════════════ */
+
+const TOPICS = [
+
+  /* ── Card 1: Tables (has sub-cards Table 11 to Table 30) ── */
+  {
+    name:"Tables", icon:"🔢", sub:"11 – 30", type:"subcards",
+    children: [
+      {
+        name:"Table 11", icon:"🔢", type:"quiz",
+        questions:`
+Q.1  What is $11 \times 1$?
+A. 11
+B. 22
+C. 33
+D. 44
+Correct Answer: A
+
+Q.2  What is $11 \times 2$?
+A. 11
+B. 22
+C. 33
+D. 44
+Correct Answer: B
+
+Q.3  What is $11 \times 5$?
+A. 44
+B. 55
+C. 66
+D. 77
+Correct Answer: B
+
+Q.4  What is $11^2$?
+A. 111
+B. 121
+C. 131
+D. 141
+Correct Answer: B
+
+Q.5  What is $\sqrt{121}$?
+A. 9
+B. 10
+C. 11
+D. 12
+Correct Answer: C
+`
+      },
+      { name:"Table 12", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 13", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 14", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 15", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 16", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 17", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 18", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 19", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 20", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 21", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 22", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 23", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 24", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 25", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 26", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 27", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 28", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 29", icon:"🔢", type:"quiz", questions:`` },
+      { name:"Table 30", icon:"🔢", type:"quiz", questions:`` },
+    ]
+  },
+
+  /* ── Cards 2–25: Rename and add questions below ── */
+  { name:"Topic 2",  icon:"📐", type:"quiz", questions:`` },
+  { name:"Topic 3",  icon:"📏", type:"quiz", questions:`` },
+  { name:"Topic 4",  icon:"🔵", type:"quiz", questions:`` },
+  { name:"Topic 5",  icon:"🔺", type:"quiz", questions:`` },
+  { name:"Topic 6",  icon:"➗", type:"quiz", questions:`` },
+  { name:"Topic 7",  icon:"✖️", type:"quiz", questions:`` },
+  { name:"Topic 8",  icon:"➕", type:"quiz", questions:`` },
+  { name:"Topic 9",  icon:"➖", type:"quiz", questions:`` },
+  { name:"Topic 10", icon:"🔷", type:"quiz", questions:`` },
+  { name:"Topic 11", icon:"📊", type:"quiz", questions:`` },
+  { name:"Topic 12", icon:"📈", type:"quiz", questions:`` },
+  { name:"Topic 13", icon:"🔣", type:"quiz", questions:`` },
+  { name:"Topic 14", icon:"🎯", type:"quiz", questions:`` },
+  { name:"Topic 15", icon:"🧮", type:"quiz", questions:`` },
+  { name:"Topic 16", icon:"📉", type:"quiz", questions:`` },
+  { name:"Topic 17", icon:"🔘", type:"quiz", questions:`` },
+  { name:"Topic 18", icon:"🎲", type:"quiz", questions:`` },
+  { name:"Topic 19", icon:"🔗", type:"quiz", questions:`` },
+  { name:"Topic 20", icon:"🧩", type:"quiz", questions:`` },
+  { name:"Topic 21", icon:"🌐", type:"quiz", questions:`` },
+  { name:"Topic 22", icon:"⚡", type:"quiz", questions:`` },
+  { name:"Topic 23", icon:"🔭", type:"quiz", questions:`` },
+  { name:"Topic 24", icon:"🧲", type:"quiz", questions:`` },
+  { name:"Topic 25", icon:"🌀", type:"quiz", questions:`` },
+
+];
+
+/* ════════════════════════════════════════════════════
+   ENGINE — DO NOT EDIT BELOW UNLESS YOU KNOW JS
+════════════════════════════════════════════════════ */
+
+/* ── State ── */
+let state = {
+  page: "home",            // home | subcards | quiz
+  activeTopic: null,
+  activeParent: null,
+  questions: [],
+  current: 0,
+  answers: {},
+  saved: {},
+  submitted: false,
+  timerSec: 360,
+  timerInterval: null,
+};
+
+/* ── Parse raw question text ── */
+function parseQ(raw) {
+  if (!raw || !raw.trim()) return [];
+  const blocks = raw.trim().split(/\n(?=Q\.\d+)/);
+  const out = [];
+  for (const b of blocks) {
+    const lines = b.trim().split('\n').map(l => l.trim()).filter(Boolean);
+    if (!lines.length) continue;
+    const qm = lines[0].match(/^Q\.\d+\s+([\s\S]+)/);
+    if (!qm) continue;
+    const text = qm[1].trim();
+    const opts = {};
+    let correct = '';
+    for (let i = 1; i < lines.length; i++) {
+      const om = lines[i].match(/^([A-D])[.)]\s+([\s\S]+)/);
+      if (om) { opts[om[1]] = om[2].trim(); continue; }
+      const cm = lines[i].match(/^Correct\s+Answer\s*:\s*([A-D])/i);
+      if (cm) correct = cm[1].toUpperCase();
+    }
+    if (Object.keys(opts).length >= 2 && correct) out.push({text, opts, correct});
+  }
+  return out;
+}
+
+/* ── Count questions for badge ── */
+function countQ(topic) {
+  if (topic.type === 'subcards') return topic.children.reduce((a,c)=>a+parseQ(c.questions).length,0);
+  return parseQ(topic.questions).length;
+}
+
+/* ── Render Home ── */
+function showHome() {
+  stopTimer();
+  state.page = 'home';
+  document.getElementById('home').style.display = 'block';
+  document.getElementById('subcards').style.display = 'none';
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('backBtn').classList.remove('show');
+  document.getElementById('timerWrap').classList.remove('show');
+
+  const grid = document.getElementById('topicsGrid');
+  grid.innerHTML = '';
+  TOPICS.forEach((t, i) => {
+    const qc = countQ(t);
+    const card = document.createElement('div');
+    card.className = 'topic-card';
+    card.innerHTML = `
+      <span class="tc-count ${qc>0?'has-q':''}">${qc}Q</span>
+      <div class="tc-icon">${t.icon}</div>
+      <div class="tc-name">${t.name}</div>
+      ${t.sub ? `<div class="tc-sub">${t.sub}</div>` : ''}
+    `;
+    card.onclick = () => topicClick(i);
+    grid.appendChild(card);
+  });
+}
+
+function topicClick(i) {
+  const t = TOPICS[i];
+  if (t.type === 'subcards') showSubcards(i);
+  else startQuiz(t, null);
+}
+
+/* ── Sub-cards ── */
+function showSubcards(parentIdx) {
+  const parent = TOPICS[parentIdx];
+  state.page = 'subcards';
+  state.activeParent = parentIdx;
+  document.getElementById('home').style.display = 'none';
+  document.getElementById('subcards').style.display = 'block';
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('backBtn').classList.add('show');
+  document.getElementById('timerWrap').classList.remove('show');
+  document.getElementById('subTitle').textContent = parent.name;
+  document.getElementById('subDesc').textContent = `${parent.children.length} sets available`;
+
+  const grid = document.getElementById('subGrid');
+  grid.innerHTML = '';
+  parent.children.forEach((c, i) => {
+    const qc = parseQ(c.questions).length;
+    const card = document.createElement('div');
+    card.className = 'sub-card';
+    card.innerHTML = `
+      <span class="tc-count ${qc>0?'has-q':''}">${qc}Q</span>
+      <div class="tc-icon">${c.icon}</div>
+      <div class="tc-name">${c.name}</div>
+    `;
+    card.onclick = () => startQuiz(c, parentIdx);
+    grid.appendChild(card);
+  });
+}
+
+/* ── Start Quiz ── */
+function startQuiz(topic, parentIdx) {
+  const qs = parseQ(topic.questions);
+  if (!qs.length) {
+    alert(`No questions in "${topic.name}" yet.\n\nOpen index.html, find this topic's questions: \`...\` and paste your questions there.`);
+    return;
+  }
+  state.activeTopic = topic;
+  state.activeParent = parentIdx;
+  state.questions = qs;
+  state.current = 0;
+  state.answers = {};
+  state.saved = {};
+  state.submitted = false;
+  state.page = 'quiz';
+
+  document.getElementById('home').style.display = 'none';
+  document.getElementById('subcards').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  document.getElementById('scoreCard').style.display = 'none';
+  document.getElementById('qCard').style.display = 'block';
+  document.getElementById('navBtns').style.display = 'flex';
+  document.getElementById('backBtn').classList.add('show');
+
+  renderQ(0);
+  updateNav();
+  startTimer();
+}
+
+/* ── Render question ── */
+function renderQ(idx) {
+  const q = state.questions[idx];
+  document.getElementById('qNum').textContent = `Q.${idx+1}`;
+  document.getElementById('qText').innerHTML = q.text;
+  document.getElementById('qSaved').className = 'q-saved' + (state.saved[idx] ? ' show' : '');
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').textContent = '';
+
+  const grid = document.getElementById('optsGrid');
+  grid.innerHTML = '';
+  ['A','B','C','D'].forEach(lbl => {
+    if (!q.opts[lbl]) return;
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.id = `opt-${lbl}`;
+    btn.dataset.key = lbl;
+    btn.innerHTML = `<span class="opt-lbl">${lbl}.</span><span>${q.opts[lbl]}</span>`;
+    btn.onclick = () => pickAnswer(lbl);
+    grid.appendChild(btn);
+  });
+
+  // Restore answered state
+  if (state.answers[idx] !== undefined || state.submitted) applyStyles(idx);
+
+  // Progress
+  document.getElementById('progBar').style.width = ((idx+1)/state.questions.length*100)+'%';
+  document.getElementById('currentQ') && (document.getElementById('currentQ').textContent = idx+1);
+
+  // Re-render MathJax
+  if (window.MathJax) MathJax.typesetPromise([document.getElementById('qText'), grid]).catch(()=>{});
+
+  // Animate
+  const card = document.getElementById('qCard');
+  card.style.animation='none'; card.offsetHeight; card.style.animation='';
+}
+
+/* ── Pick answer ── */
+function pickAnswer(lbl) {
+  if (state.submitted) return;
+  state.answers[state.current] = lbl;
+  applyStyles(state.current);
+  updateNav();
+}
+
+function applyStyles(idx) {
+  const q = state.questions[idx];
+  const chosen = state.answers[idx];
+  document.querySelectorAll('.opt').forEach(b => {
+    b.disabled = true;
+    b.classList.remove('correct','wrong','show-correct');
+  });
+  if (!chosen) return;
+  const cb = document.getElementById(`opt-${chosen}`);
+  const rb = document.getElementById(`opt-${q.correct}`);
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback show';
+  if (chosen === q.correct) {
+    cb?.classList.add('correct');
+    fb.classList.add('ok');
+    fb.textContent = '✅ Correct! Well done.';
+  } else {
+    cb?.classList.add('wrong');
+    rb?.classList.add('show-correct');
+    fb.classList.add('bad');
+    fb.textContent = `❌ Wrong! Correct answer is ${q.correct}.`;
+  }
+}
+
+/* ── Navigation ── */
+function navigate(d) {
+  const n = state.current + d;
+  if (n < 0 || n >= state.questions.length) return;
+  state.current = n;
+  renderQ(n);
+  updateNav();
+}
+
+function updateNav() {
+  document.getElementById('prevBtn').disabled = state.current === 0;
+  document.getElementById('nextBtn').disabled = state.current === state.questions.length - 1;
+  document.getElementById('submitBtn').style.display = state.current === state.questions.length - 1 ? 'inline-flex' : 'none';
+}
+
+/* ── Save ── */
+function saveAnswer() {
+  const btn = document.querySelector('.btn-save');
+  if (state.answers[state.current] !== undefined) {
+    state.saved[state.current] = true;
+    document.getElementById('qSaved').className = 'q-saved show';
+    btn.textContent = '✅ Saved!';
+    setTimeout(() => { btn.innerHTML = '💾 Save'; }, 1400);
+  } else {
+    btn.textContent = '⚠️ Pick first';
+    setTimeout(() => { btn.innerHTML = '💾 Save'; }, 1600);
+  }
+}
+
+/* ── Submit ── */
+function submitQuiz(timeOut = false) {
+  if (!timeOut && !confirm('Submit quiz? Your answers will be locked.')) return;
+  state.submitted = true;
+  stopTimer();
+
+  let score = 0;
+  state.questions.forEach((q, i) => { if (state.answers[i] === q.correct) score++; });
+  const total = state.questions.length;
+  const pct = Math.round(score / total * 100);
+
+  document.getElementById('qCard').style.display = 'none';
+  document.getElementById('navBtns').style.display = 'none';
+  const sc = document.getElementById('scoreCard');
+  sc.style.display = 'block';
+
+  document.getElementById('scEmoji').textContent = pct >= 80 ? '🎉' : pct >= 50 ? '🙂' : '😅';
+  document.getElementById('scTitle').textContent = pct >= 80 ? 'Excellent!' : pct >= 50 ? 'Good Effort!' : 'Keep Practising!';
+  document.getElementById('scScore').textContent = `${score}/${total}`;
+  document.getElementById('scSub').textContent = `${pct}% correct`;
+  document.getElementById('scTimeOut').style.display = timeOut ? 'block' : 'none';
+
+  document.getElementById('progBar').style.width = '100%';
+}
+
+/* ── Retry ── */
+function retryQuiz() {
+  startQuiz(state.activeTopic, state.activeParent);
+}
+
+/* ── Back ── */
+function goBack() {
+  stopTimer();
+  if (state.page === 'quiz' || state.page === 'subcards') {
+    if (state.activeParent !== null && state.page === 'quiz' && TOPICS[state.activeParent]?.type === 'subcards') {
+      showSubcards(state.activeParent);
+    } else {
+      showHome();
+    }
+  } else {
+    showHome();
+  }
+}
+
+/* ── Timer ── */
+function startTimer() {
+  state.timerSec = 360; // 6 minutes
+  document.getElementById('timerWrap').classList.add('show');
+  updateTimerUI();
+  clearInterval(state.timerInterval);
+  state.timerInterval = setInterval(() => {
+    state.timerSec--;
+    updateTimerUI();
+    if (state.timerSec <= 0) {
+      clearInterval(state.timerInterval);
+      submitQuiz(true);
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(state.timerInterval);
+  document.getElementById('timerWrap').classList.remove('show');
+}
+
+function updateTimerUI() {
+  const s = state.timerSec;
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  const label = `${m}:${sec.toString().padStart(2,'0')}`;
+  const numEl = document.getElementById('timerNum');
+  const ringEl = document.getElementById('ringFg');
+  numEl.textContent = label;
+  const circumf = 138;
+  const offset = circumf - (s / 360) * circumf;
+  ringEl.style.strokeDashoffset = offset;
+  if (s <= 60) {
+    numEl.className = 'timer-num warn';
+    ringEl.className = 'ring-fg warn';
+  } else {
+    numEl.className = 'timer-num';
+    ringEl.className = 'ring-fg';
+  }
+}
+
+/* ── Boot ── */
+showHome();
+</script>
+</body>
+</html>
