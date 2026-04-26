@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>MathZone</title>
+<title>Calculation Booster</title>
 
 <!-- MathJax: renders ALL math symbols, LaTeX, fractions, roots perfectly -->
 <script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
@@ -238,7 +238,7 @@ mjx-container{overflow-x:auto;max-width:100%}
      HEADER
 ══════════════════════════════════════════════ -->
 <header class="hdr">
-  <div class="logo">∑ Math<span>Zone</span></div>
+  <div class="logo">⚡ Calculation<span>Booster</span></div>
   <div class="hdr-right">
     <div class="timer-wrap" id="timerWrap">
       <div class="timer-ring">
@@ -358,7 +358,7 @@ const TOPICS = [
 
   /* ── Card 1: Tables (has sub-cards Table 11 to Table 30) ── */
   {
-    name:"Tables", icon:"🔢", sub:"11 – 30", type:"subcards",
+    name:"Tables", icon:"✖️", sub:"11 – 30", type:"subcards",
     children: [
       {
         name:"Table 11", icon:"🔢", type:"quiz",
@@ -408,8 +408,7 @@ Correct Answer: B
 Q.7 11 * 7 = ?
 A. 77
 B. 67
-
-87
+C. 87
 D. 57
 Correct Answer: A
 
@@ -3158,7 +3157,7 @@ Correct Answer: B
   },
 
   /* ── Cards 2–25: Rename and add questions below ── */
-  { name:"Squares",  icon:"📐", type:"quiz", questions:`
+  { name:"Squares",  icon:"⬛", type:"quiz", questions:`
 Q.1 1^2 = ?
 A. 1
 B. 11
@@ -3648,7 +3647,7 @@ B. 4900
 C. 5000
 D. 4700
 Correct Answer: B` },
-  { name:"cubes",  icon:"📏", type:"quiz", questions:`
+  { name:"cubes",  icon:"🎲", type:"quiz", questions:`
 Q.71 1^3 = ?
 A. 1
 B. 11
@@ -3858,7 +3857,7 @@ B. 28000
 C. 27000
 D. 25000
 Correct Answer: C` },
-  { name:"Triplets",  icon:"🔵", type:"quiz", questions:`
+  { name:"Triplets",  icon:"🔺", type:"quiz", questions:`
 Q.1 (3, 4, 5) derivative:
 A. (9, 12, 15)
 B. (9, 11, 15)
@@ -4026,7 +4025,7 @@ B. (8, 15, 18)
 C. (8, 15, 17)
 D. (8, 15, 15)
 Correct Answer: C` },
-  { name:"percentage",  icon:"🔺", type:"quiz", questions:`
+  { name:"percentage",  icon:"💯", type:"quiz", questions:`
 Q.1 What is the percentage value of 1/3?
 A. 33.13%
 B. 33.33%
@@ -4404,7 +4403,7 @@ B. 28.47% (approx)
 C. 28.67% (approx)
 D. 28.37% (approx)
 Correct Answer: A` },
-  { name:"Algebra",  icon:"➗", type:"quiz", questions:`
+  { name:"Algebra",  icon:"🔣", type:"quiz", questions:`
 Q.1 (a+b)^2 = ?
 A. a^2 + b^2 - 2ab
 B. a^2 + b^2 + 2ab
@@ -4747,7 +4746,7 @@ B. 3(a+b)(b+c)(c+a)
 C. 6(a+b)(b+c)(c+a)
 D. 2(a+b)(b+c)(c+a)
 Correct Answer: B` },
-  { name:"Mensuration",  icon:"✖️", type:"quiz", questions:`Q.26 1 Radian is approximately equal to:
+  { name:"Mensuration",  icon:"📐", type:"quiz", questions:`Q.26 1 Radian is approximately equal to:
 A. 60 degrees
 B. 57 degrees
 C. 180 degrees
@@ -4906,9 +4905,8 @@ A. x = sqrt(ab)
 B. x = (a * b) / (a + b)
 C. x = (a + b) / 2
 D. x = sqrt(a^2 + b^2)
-Correct Answer: A`,
-  ` },
-  { name:"MIscellaneous",  icon:"➕", type:"quiz", questions:`Q.1 Co-efficient of variation = ?
+Correct Answer: A` },
+  { name:"MIscellaneous",  icon:"🧩", type:"quiz", questions:`Q.1 Co-efficient of variation = ?
 A. (Mean / Standard Deviation) * 100
 B. (Standard Deviation / Median) * 100
 C. (Standard Deviation / Mean) * 100
@@ -5173,8 +5171,8 @@ B. sqrt(AD * DB)
 C. Both A and B
 D. AC^2 / AB
 Correct Answer: C` },
-  { name:"Topic 9",  icon:"➖", type:"quiz", questions:`` },
-  { name:"Topic 10", icon:"🔷", type:"quiz", questions:`` },
+  { name:"Topic 9",  icon:"📊", type:"quiz", questions:`` },
+  { name:"Topic 10", icon:"📈", type:"quiz", questions:`` },
   { name:"Topic 11", icon:"📊", type:"quiz", questions:`` },
   { name:"Topic 12", icon:"📈", type:"quiz", questions:`` },
   { name:"Topic 13", icon:"🔣", type:"quiz", questions:`` },
@@ -5253,7 +5251,7 @@ function showHome() {
 
   const grid = document.getElementById('topicsGrid');
   grid.innerHTML = '';
-  TOPICS.forEach((t, i) => {
+  TOPICS.slice(0, 10).forEach((t, i) => {
     const qc = countQ(t);
     const card = document.createElement('div');
     card.className = 'topic-card';
